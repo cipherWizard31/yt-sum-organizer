@@ -6,44 +6,43 @@ import { createClient } from '@/app/utils/supabase/server'
 
 export async function login(formData: FormData) {
   const supabase = await createClient()
-
   const email = formData.get('email') as string
   const password = formData.get('password') as string
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  })
+  const { error } = await supabase.auth.signInWithPassword({ email, password })
 
   if (error) {
-    redirect('/login?error=Invalid credentials')
+    redirect(`/login?error=${encodeURIComponent(error.message)}`)
   }
 
   revalidatePath('/', 'layout')
   redirect('/dashboard')
 }
 
- export async function signup(formData: FormData) {
+export async function signup(formData: FormData) {
   const supabase = await createClient()
-
   const email = formData.get('email') as string
   const password = formData.get('password') as string
 
-  const { error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`,
-    },
-  })
+  const { error } = await supabase.auth.signUp({ email, password })
 
   if (error) {
-    // Print the exact error in your terminal server console
-    console.error('Supabase Sign Up Error:', error)
-    
-    // Redirect with the actual error message from Supabase
     redirect(`/login?error=${encodeURIComponent(error.message)}`)
   }
 
-  redirect('/login?message=Check your email to confirm your registration!')
+  // Immediately sign in after signup (no email confirmation required)
+  const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
+  if (signInError) {
+    redirect(`/login?message=Account created! Please log in.`)
+  }
+
+  revalidatePath('/', 'layout')
+  redirect('/dashboard')
+}
+
+export async function logout() {
+  const supabase = await createClient()
+  await supabase.auth.signOut()
+  revalidatePath('/', 'layout')
+  redirect('/login')
 }

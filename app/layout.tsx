@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   description: "Created by Natan Yidnekachew, YT Summary Organizer is a tool that helps you organize your YouTube summaries efficiently.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="en"
