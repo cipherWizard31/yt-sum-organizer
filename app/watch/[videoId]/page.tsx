@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { createClient } from '@/app/utils/supabase/server'
 import WatchClient from '@/components/WatchClient'
 import { ArrowLeft, Layers } from 'lucide-react'
-import type { TimestampNote } from '@/types'
+import type { TimestampNote, Summary } from '@/types'
 
 interface PageProps {
   params: Promise<{ videoId: string }>
@@ -32,6 +32,14 @@ export default async function WatchPage({ params }: PageProps) {
     .order('time_in_seconds', { ascending: true })
 
   const timestampList: TimestampNote[] = timestamps ?? []
+
+  const { data: summaries } = await supabase
+    .from('summaries')
+    .select('*')
+    .eq('video_id', videoId)
+    .order('created_at', { ascending: false })
+
+  const summaryList: Summary[] = summaries ?? []
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
@@ -69,6 +77,7 @@ export default async function WatchPage({ params }: PageProps) {
           videoUrl={video.video_url}
           videoId={videoId}
           timestamps={timestampList}
+          summaries={summaryList}
         />
       </main>
     </div>

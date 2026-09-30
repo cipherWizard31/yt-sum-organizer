@@ -13,17 +13,9 @@ export async function addTimestamp(formData: FormData) {
   const time_in_seconds = parseFloat(formData.get('time_in_seconds') as string)
   const note_text = (formData.get('note_text') as string)?.trim()
 
-  if (!note_text || isNaN(time_in_seconds)) {
-    return // silently skip invalid submissions
-  }
+  if (!note_text || isNaN(time_in_seconds)) return
 
-  await supabase.from('timestamps').insert({
-    video_id,
-    user_id: user.id,
-    time_in_seconds,
-    note_text,
-  })
-
+  await supabase.from('timestamps').insert({ video_id, user_id: user.id, time_in_seconds, note_text })
   revalidatePath(`/watch/${video_id}`)
 }
 
@@ -35,3 +27,40 @@ export async function deleteTimestamp(timestampId: string, videoId: string) {
   await supabase.from('timestamps').delete().eq('id', timestampId).eq('user_id', user.id)
   revalidatePath(`/watch/${videoId}`)
 }
+
+export async function addSummary(formData: FormData) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+
+  const video_id = formData.get('video_id') as string
+  const summary_text = (formData.get('summary_text') as string)?.trim()
+  if (!summary_text) return
+
+  await supabase.from('summaries').insert({ video_id, user_id: user.id, summary_text })
+  revalidatePath(`/watch/${video_id}`)
+}
+
+export async function deleteSummary(summaryId: string, videoId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+
+  await supabase.from('summaries').delete().eq('id', summaryId).eq('user_id', user.id)
+  revalidatePath(`/watch/${videoId}`)
+}
+
+export async function updateSummary(formData: FormData) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+
+  const summary_id = formData.get('summary_id') as string
+  const video_id = formData.get('video_id') as string
+  const summary_text = (formData.get('summary_text') as string)?.trim()
+  if (!summary_text) return
+
+  await supabase.from('summaries').update({ summary_text }).eq('id', summary_id).eq('user_id', user.id)
+  revalidatePath(`/watch/${video_id}`)
+}
+
