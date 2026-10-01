@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { login, signup } from './actions'
 import { Video, AlertCircle, CheckCircle, Layers } from 'lucide-react'
 
-export default function LoginPage() {
+function LoginForm() {
   const [isSignUp, setIsSignUp] = useState(false)
   const [pending, setPending] = useState(false)
   const searchParams = useSearchParams()
@@ -123,5 +123,17 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-slate-950">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-700 border-t-indigo-500" />
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   )
 }

@@ -21,6 +21,7 @@ export default function DashboardShell({ videos, folders, fetchError }: Props) {
   const [showNewFolder, setShowNewFolder] = useState(false)
   const [savingFolder, setSavingFolder] = useState(false)
   const [deletingFolder, setDeletingFolder] = useState<string | null>(null)
+  const [folderActionError, setFolderActionError] = useState<string | null>(null)
 
   const filteredVideos = selectedFolder === null
     ? videos
@@ -29,33 +30,61 @@ export default function DashboardShell({ videos, folders, fetchError }: Props) {
       : videos.filter(v => v.folder_id === selectedFolder)
 
   async function handleCreateFolder() {
-    if (!newFolderName.trim()) return
+    const trimmed = newFolderName.trim()
+    if (!trimmed) return
     setSavingFolder(true)
-    await createFolder(newFolderName)
-    setNewFolderName('')
-    setShowNewFolder(false)
-    setSavingFolder(false)
+    setFolderActionError(null)
+    try {
+      const res = await createFolder(trimmed)
+      if (res?.error) {
+        setFolderActionError(res.error)
+      } else {
+        setNewFolderName('')
+        setShowNewFolder(false)
+      }
+    } catch (err: unknown) {
+      setFolderActionError(err instanceof Error ? err.message : 'Failed to create folder')
+    } finally {
+      setSavingFolder(false)
+    }
   }
 
   async function handleDeleteFolder(id: string, e: React.MouseEvent) {
     e.stopPropagation()
     if (!confirm('Delete this folder? Videos inside will be unassigned.')) return
     setDeletingFolder(id)
-    await deleteFolder(id)
-    if (selectedFolder === id) setSelectedFolder(null)
-    setDeletingFolder(null)
+    setFolderActionError(null)
+    try {
+      const res = await deleteFolder(id)
+      if (res?.error) {
+        setFolderActionError(res.error)
+      } else if (selectedFolder === id) {
+        setSelectedFolder(null)
+      }
+    } catch (err: unknown) {
+      setFolderActionError(err instanceof Error ? err.message : 'Failed to delete folder')
+    } finally {
+      setDeletingFolder(null)
+    }
   }
 
   async function handleDrop(folderId: string | null) {
     const videoId = (window as unknown as { _dragVideoId?: string })._dragVideoId
-    if (!videoId) return
     setDragOverFolder('_none')
-    await assignVideoToFolder(videoId, folderId)
+    if (!videoId) return
+    try {
+      await assignVideoToFolder(videoId, folderId)
+    } catch {
+      // silently handle or log
+    }
   }
 
   function onDragOver(e: React.DragEvent, id: string | null | 'unassigned') {
     e.preventDefault()
-    setDragOverFolder(id as string)
+    // Avoid re-renders on every mouse move if already pointing to the same folder
+    if (dragOverFolder !== id) {
+      setDragOverFolder(id)
+    }
   }
 
   return (
@@ -157,10 +186,15 @@ export default function DashboardShell({ videos, folders, fetchError }: Props) {
         </div>
       </div>
 
-      {/* Error */}
-      {fetchError && (
-        <div className="mb-6 rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-400">
-          Failed to load videos: {fetchError}
+      {/* Action / Fetch Error */}
+      {(fetchError || folderActionError) && (
+        <div className="mb-6 rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-400 flex items-center justify-between">
+          <span>{folderActionError || `Failed to load videos: ${fetchError}`}</span>
+          {folderActionError && (
+            <button onClick={() => setFolderActionError(null)} className="ml-3 text-red-400 hover:text-white">
+              <X className="h-4 w-4" />
+            </button>
+          )}
         </div>
       )}
 

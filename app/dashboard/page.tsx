@@ -10,10 +10,12 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const [{ data: videos, error }, { data: folders }] = await Promise.all([
+  const [{ data: videos, error: videoError }, { data: folders, error: folderError }] = await Promise.all([
     supabase.from('videos').select('*').order('created_at', { ascending: false }),
     supabase.from('folders').select('*').order('created_at', { ascending: true }),
   ])
+
+  const combinedError = videoError?.message || folderError?.message
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
@@ -51,7 +53,7 @@ export default async function DashboardPage() {
         <DashboardShell
           videos={(videos ?? []) as Video[]}
           folders={(folders ?? []) as Folder[]}
-          fetchError={error?.message}
+          fetchError={combinedError}
         />
       </main>
     </div>

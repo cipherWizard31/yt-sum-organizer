@@ -1,7 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Trash2, FileText, AlignLeft, Loader2, Pencil, Check, X } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { deleteSummary, addSummary, updateSummary } from '@/app/watch/[videoId]/actions'
 import type { Summary } from '@/types'
 import type { VideoPlayerHandle } from './VideoPlayer'
@@ -13,19 +15,118 @@ function parseTimestamp(t: string): number {
   return 0
 }
 
-function SummaryText({ text, onSeek }: { text: string; onSeek: (s: number) => void }) {
-  const parts = text.split(/(\b\d{1,2}:\d{2}(?::\d{2})?\b)/g)
+function renderTextWithTimestamps(content: string, onSeek: (s: number) => void) {
+  const parts = content.split(/(\b\d{1,2}:\d{2}(?::\d{2})?\b)/g)
+  return parts.map((part, i) =>
+    /^\d{1,2}:\d{2}(:\d{2})?$/.test(part) ? (
+      <button
+        key={i}
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation()
+          onSeek(parseTimestamp(part))
+        }}
+        className="inline-flex items-center rounded-md bg-indigo-500/20 hover:bg-indigo-500/40 text-indigo-300 hover:text-white px-1.5 py-0.5 font-mono text-xs font-semibold mx-0.5 cursor-pointer transition select-none"
+      >
+        {part}
+      </button>
+    ) : (
+      part
+    )
+  )
+}
+
+function SummaryMarkdown({ text, onSeek }: { text: string; onSeek: (s: number) => void }) {
+  const components = useMemo(() => ({
+    p: ({ children }: { children?: React.ReactNode }) => (
+      <p className="mb-3 last:mb-0 text-sm leading-relaxed text-slate-300">
+        {Array.isArray(children)
+          ? children.map((child, idx) =>
+              typeof child === 'string' ? renderTextWithTimestamps(child, onSeek) : <span key={idx}>{child}</span>
+            )
+          : typeof children === 'string'
+            ? renderTextWithTimestamps(children, onSeek)
+            : children}
+      </p>
+    ),
+    li: ({ children }: { children?: React.ReactNode }) => (
+      <li className="mb-1 text-sm text-slate-300">
+        {Array.isArray(children)
+          ? children.map((child, idx) =>
+              typeof child === 'string' ? renderTextWithTimestamps(child, onSeek) : <span key={idx}>{child}</span>
+            )
+          : typeof children === 'string'
+            ? renderTextWithTimestamps(children, onSeek)
+            : children}
+      </li>
+    ),
+    h1: ({ children }: { children?: React.ReactNode }) => (
+      <h1 className="text-xl font-bold text-white mt-4 mb-2 first:mt-0">{children}</h1>
+    ),
+    h2: ({ children }: { children?: React.ReactNode }) => (
+      <h2 className="text-lg font-bold text-white mt-3 mb-2 first:mt-0">{children}</h2>
+    ),
+    h3: ({ children }: { children?: React.ReactNode }) => (
+      <h3 className="text-base font-semibold text-white mt-3 mb-1 first:mt-0">{children}</h3>
+    ),
+    ul: ({ children }: { children?: React.ReactNode }) => (
+      <ul className="list-disc pl-5 mb-3 space-y-1">{children}</ul>
+    ),
+    ol: ({ children }: { children?: React.ReactNode }) => (
+      <ol className="list-decimal pl-5 mb-3 space-y-1">{children}</ol>
+    ),
+    blockquote: ({ children }: { children?: React.ReactNode }) => (
+      <blockquote className="border-l-4 border-indigo-500/50 bg-slate-800/40 pl-3 py-1 my-3 text-slate-400 italic rounded-r">
+        {children}
+      </blockquote>
+    ),
+    code: ({ children, className }: { children?: React.ReactNode; className?: string }) => {
+      const isInline = !className
+      return isInline ? (
+        <code className="rounded bg-slate-800 px-1.5 py-0.5 font-mono text-xs text-indigo-300 border border-slate-700/60">
+          {children}
+        </code>
+      ) : (
+        <pre className="overflow-x-auto rounded-xl bg-slate-950 p-3 my-3 font-mono text-xs text-slate-200 border border-slate-800">
+          <code>{children}</code>
+        </pre>
+      )
+    },
+    table: ({ children }: { children?: React.ReactNode }) => (
+      <div className="overflow-x-auto my-3">
+        <table className="w-full text-left text-sm border-collapse border border-slate-700/60">
+          {children}
+        </table>
+      </div>
+    ),
+    th: ({ children }: { children?: React.ReactNode }) => (
+      <th className="border border-slate-700 bg-slate-800/70 p-2 font-semibold text-slate-200">
+        {children}
+      </th>
+    ),
+    td: ({ children }: { children?: React.ReactNode }) => (
+      <td className="border border-slate-700/60 p-2 text-slate-300">
+        {children}
+      </td>
+    ),
+    a: ({ href, children }: { href?: string; children?: React.ReactNode }) => (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-indigo-400 underline hover:text-indigo-300 transition"
+      >
+        {children}
+      </a>
+    ),
+  }), [onSeek])
+
   return (
-    <p className="text-sm leading-relaxed text-slate-300 whitespace-pre-wrap break-words">
-      {parts.map((part, i) =>
-        /^\d{1,2}:\d{2}(:\d{2})?$/.test(part) ? (
-          <button key={i} onClick={() => onSeek(parseTimestamp(part))}
-            className="inline-flex items-center rounded-md bg-indigo-600/25 px-1.5 py-0.5 text-xs font-mono font-semibold text-indigo-300 transition hover:bg-indigo-600/50 hover:text-white mx-0.5">
-            {part}
-          </button>
-        ) : <span key={i}>{part}</span>
-      )}
-    </p>
+    <div className="prose prose-invert max-w-none text-slate-300 break-words">
+      <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
+        {text}
+      </ReactMarkdown>
+    </div>
   )
 }
 
@@ -144,7 +245,7 @@ export default function SummaryList({ summaries, videoId, playerRef }: Props) {
               </div>
             </div>
           ) : (
-            <SummaryText text={s.summary_text} onSeek={handleSeek} />
+            <SummaryMarkdown text={s.summary_text} onSeek={handleSeek} />
           )}
         </div>
       ))}

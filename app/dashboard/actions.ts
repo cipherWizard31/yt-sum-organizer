@@ -44,8 +44,12 @@ export async function createFolder(name: string) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  await supabase.from('folders').insert({ name: name.trim(), user_id: user.id })
+  const { error } = await supabase.from('folders').insert({ name: name.trim(), user_id: user.id })
+  if (error) {
+    return { error: error.message }
+  }
   revalidatePath('/dashboard')
+  return { success: true }
 }
 
 export async function deleteFolder(folderId: string) {
@@ -54,8 +58,12 @@ export async function deleteFolder(folderId: string) {
   if (!user) redirect('/login')
 
   // Videos in folder will have folder_id set to null (on delete set null)
-  await supabase.from('folders').delete().eq('id', folderId).eq('user_id', user.id)
+  const { error } = await supabase.from('folders').delete().eq('id', folderId).eq('user_id', user.id)
+  if (error) {
+    return { error: error.message }
+  }
   revalidatePath('/dashboard')
+  return { success: true }
 }
 
 export async function assignVideoToFolder(videoId: string, folderId: string | null) {
@@ -63,6 +71,10 @@ export async function assignVideoToFolder(videoId: string, folderId: string | nu
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  await supabase.from('videos').update({ folder_id: folderId }).eq('id', videoId).eq('user_id', user.id)
+  const { error } = await supabase.from('videos').update({ folder_id: folderId }).eq('id', videoId).eq('user_id', user.id)
+  if (error) {
+    return { error: error.message }
+  }
   revalidatePath('/dashboard')
+  return { success: true }
 }
