@@ -1,8 +1,9 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { createClient } from '@/app/utils/supabase/server'
 import DashboardShell from '@/components/DashboardShell'
-import { Layers, Settings } from 'lucide-react'
+import { Settings, User as UserIcon } from 'lucide-react'
 import type { Video, Folder } from '@/types'
 
 export default async function DashboardPage() {
@@ -18,42 +19,60 @@ export default async function DashboardPage() {
   const combinedError = videoError?.message || folderError?.message
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 h-96 w-96 rounded-full bg-indigo-600/10 blur-3xl" />
+    <div className="min-h-screen bg-[#0f131c] text-[#dfe2ef] antialiased flex flex-col selection:bg-[#a078ff] selection:text-[#340080]">
+      {/* Ambient gradient glow in Stitch violet & cyan */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
+        <div className="absolute -top-32 -right-32 h-96 w-96 rounded-full bg-[#a078ff]/10 blur-[120px]" />
+        <div className="absolute top-1/2 -left-48 h-80 w-80 rounded-full bg-[#00a6e0]/8 blur-[100px]" />
       </div>
 
-      {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-slate-800/60 bg-slate-950/80 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600">
-              <Layers className="h-4 w-4 text-white" />
+      {/* Stitch Top Bar */}
+      <header className="sticky top-0 z-40 bg-[#0f131c]/85 backdrop-blur-xl border-b border-[#262a34]/60 shadow-[0_1px_8px_rgba(0,0,0,0.25)]">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-8 py-3.5">
+          {/* Logo & App title */}
+          <Link href="/dashboard" className="flex items-center gap-3 group focus:outline-none">
+            <div className="h-9 w-9 rounded-xl bg-[#1c1f29] border border-[#31353f] flex items-center justify-center shadow-inner transition group-hover:border-[#d0bcff]/50">
+              <Image src="/logo.svg" alt="YT Summary Organizer Logo" width={26} height={26} className="object-contain" priority />
             </div>
-            <span className="text-lg font-bold text-white">VideoMark</span>
-          </div>
+            <div className="flex flex-col min-w-0">
+              <span className="font-semibold text-[17px] tracking-tight text-[#dfe2ef] group-hover:text-white transition leading-tight">
+                YT Summaries
+              </span>
+              <span className="text-[11px] font-medium text-[#cbc3d7]/70 leading-tight">
+                Workspace Dashboard
+              </span>
+            </div>
+          </Link>
+
+          {/* Right User Bar */}
           <div className="flex items-center gap-3">
-            <span className="hidden text-sm text-slate-400 sm:block">{user.email}</span>
-            <Link href="/settings"
-              className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/60 px-3 py-1.5 text-sm text-slate-300 transition hover:text-white">
-              <Settings className="h-4 w-4" />
-              <span className="hidden sm:block">Settings</span>
+            <div className="hidden sm:inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1c1f29] border border-[#262a34] text-[#cbc3d7] shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-[#45dfa4] animate-pulse"></span>
+              <span className="font-mono text-xs text-[#dfe2ef] truncate max-w-[200px]">
+                {user.email}
+              </span>
+            </div>
+
+            <Link
+              href="/settings"
+              aria-label="Settings and Profile"
+              className="w-10 h-10 rounded-full bg-[#1c1f29] border border-[#262a34] hover:border-[#d0bcff]/50 flex items-center justify-center text-[#dfe2ef] hover:text-[#d0bcff] transition active:scale-95 shadow-sm"
+            >
+              <div className="w-7 h-7 rounded-full bg-[#d0bcff] flex items-center justify-center">
+                <UserIcon className="h-4 w-4 text-[#3c0091]" />
+              </div>
             </Link>
           </div>
         </div>
       </header>
 
-      {/* Main */}
-      <main className="mx-auto max-w-6xl px-6 py-10">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-white">Video Library</h1>
-          <p className="text-sm text-slate-400">{(videos ?? []).length} saved video{(videos ?? []).length !== 1 ? 's' : ''}</p>
-        </div>
-
+      {/* Main Container */}
+      <main className="relative z-10 flex-1 w-full max-w-7xl mx-auto px-4 sm:px-8 py-8 flex flex-col">
         <DashboardShell
           videos={(videos ?? []) as Video[]}
           folders={(folders ?? []) as Folder[]}
           fetchError={combinedError}
+          userEmail={user.email ?? ''}
         />
       </main>
     </div>

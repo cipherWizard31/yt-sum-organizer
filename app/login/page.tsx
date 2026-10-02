@@ -2,8 +2,9 @@
 
 import { useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
+import Image from 'next/image'
 import { login, signup } from './actions'
-import { Video, AlertCircle, CheckCircle, Layers } from 'lucide-react'
+import { AlertCircle, CheckCircle, Loader2, ArrowRight } from 'lucide-react'
 
 function LoginForm() {
   const [isSignUp, setIsSignUp] = useState(false)
@@ -23,39 +24,42 @@ function LoginForm() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-950 p-4">
-      {/* Background gradient */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-indigo-600/20 blur-3xl" />
-        <div className="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-violet-600/20 blur-3xl" />
+    <div className="flex min-h-screen items-center justify-center bg-[#0f131c] text-[#dfe2ef] p-4 relative overflow-hidden">
+      {/* Ambient background glows */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
+        <div className="absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full bg-[#a078ff]/15 blur-[140px]" />
+        <div className="absolute -bottom-40 -right-40 h-[500px] w-[500px] rounded-full bg-[#00a6e0]/12 blur-[140px]" />
       </div>
 
-      <div className="relative w-full max-w-md">
+      <div className="relative z-10 w-full max-w-md">
         {/* Logo / Brand */}
         <div className="mb-8 flex flex-col items-center gap-3">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 shadow-lg shadow-indigo-500/30">
-            <Layers className="h-7 w-7 text-white" />
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#1c1f29] border border-[#31353f] shadow-xl">
+            <Image src="/logo.svg" alt="YT Summaries Logo" width={34} height={34} priority />
           </div>
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-white">VideoMark</h1>
-            <p className="text-sm text-slate-400">Timestamped notes for any video</p>
+            <h1 className="text-2xl font-bold tracking-tight text-[#dfe2ef]">YT Summaries</h1>
+            <p className="text-xs sm:text-sm text-[#cbc3d7]/70">Curated timestamps, chapters &amp; AI study notes</p>
           </div>
         </div>
 
         {/* Card */}
-        <div className="rounded-2xl border border-slate-800/60 bg-slate-900/80 p-8 shadow-2xl backdrop-blur-sm">
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold text-white">
-              {isSignUp ? 'Create your account' : 'Welcome back'}
+        <div className="rounded-3xl border border-[#262a34] bg-[#181b25]/90 p-6 sm:p-8 shadow-2xl backdrop-blur-xl">
+          {/* Header & Toggle */}
+          <div className="mb-6 flex flex-col gap-2">
+            <h2 className="text-xl font-semibold text-[#dfe2ef]">
+              {isSignUp ? 'Create your workspace' : 'Welcome back'}
             </h2>
-            <p className="mt-1 text-sm text-slate-400">
-              {isSignUp ? 'Start annotating your videos today.' : 'Log in to access your video notes.'}
+            <p className="text-xs sm:text-sm text-[#cbc3d7]/70">
+              {isSignUp
+                ? 'Sign up to organize your video notes and timestamp bookmarks.'
+                : 'Log in to access your curated video library.'}
             </p>
           </div>
 
           {/* Error Banner */}
           {error && (
-            <div className="mb-5 flex items-start gap-3 rounded-xl bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-400">
+            <div className="mb-5 flex items-start gap-3 rounded-2xl bg-[#93000a]/20 border border-[#93000a]/40 p-3.5 text-xs sm:text-sm text-[#ffb4ab]">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
               <span>{error}</span>
             </div>
@@ -63,62 +67,88 @@ function LoginForm() {
 
           {/* Success Banner */}
           {message && (
-            <div className="mb-5 flex items-start gap-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-3 text-sm text-emerald-400">
+            <div className="mb-5 flex items-start gap-3 rounded-2xl bg-[#00a574]/20 border border-[#00a574]/40 p-3.5 text-xs sm:text-sm text-[#45dfa4]">
               <CheckCircle className="mt-0.5 h-4 w-4 shrink-0" />
               <span>{message}</span>
             </div>
           )}
 
+          {/* Form */}
           <form action={handleAction} className="flex flex-col gap-4">
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-300">Email</label>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold uppercase tracking-wider text-[#cbc3d7]" htmlFor="email">
+                Email Address
+              </label>
               <input
+                id="email"
                 name="email"
                 type="email"
                 required
                 autoComplete="email"
-                placeholder="you@example.com"
-                className="w-full rounded-xl bg-slate-800/70 border border-slate-700/60 px-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                placeholder="name@example.com"
+                className="w-full h-11 px-3.5 rounded-xl bg-[#1c1f29] border border-[#262a34] text-sm text-[#dfe2ef] placeholder-[#958ea0] focus:outline-none focus:border-[#d0bcff] focus:ring-1 focus:ring-[#d0bcff]/40 transition"
               />
             </div>
 
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-300">Password</label>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold uppercase tracking-wider text-[#cbc3d7]" htmlFor="password">
+                Password
+              </label>
               <input
+                id="password"
                 name="password"
                 type="password"
                 required
                 autoComplete={isSignUp ? 'new-password' : 'current-password'}
                 placeholder="••••••••"
-                className="w-full rounded-xl bg-slate-800/70 border border-slate-700/60 px-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                className="w-full h-11 px-3.5 rounded-xl bg-[#1c1f29] border border-[#262a34] text-sm text-[#dfe2ef] placeholder-[#958ea0] focus:outline-none focus:border-[#d0bcff] focus:ring-1 focus:ring-[#d0bcff]/40 transition"
               />
             </div>
 
             <button
               type="submit"
               disabled={pending}
-              className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/25 transition hover:from-indigo-500 hover:to-violet-500 disabled:opacity-60 disabled:cursor-not-allowed"
+              className="mt-2 h-11 rounded-full bg-[#a078ff] hover:bg-[#d0bcff] text-[#340080] font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#a078ff]/25 active:scale-[0.98] transition disabled:opacity-50"
             >
               {pending ? (
                 <>
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                  {isSignUp ? 'Creating account…' : 'Signing in…'}
+                  <Loader2 className="h-4 w-4 animate-spin text-[#340080]" />
+                  <span>Processing...</span>
                 </>
               ) : (
-                isSignUp ? 'Create Account' : 'Log In'
+                <>
+                  <span>{isSignUp ? 'Sign Up' : 'Log In'}</span>
+                  <ArrowRight className="h-4 w-4" />
+                </>
               )}
             </button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-slate-400">
-            {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
-            <button
-              type="button"
-              onClick={() => setIsSignUp(!isSignUp)}
-              className="font-medium text-indigo-400 transition hover:text-indigo-300 hover:underline"
-            >
-              {isSignUp ? 'Log in' : 'Sign up'}
-            </button>
+          {/* Toggle */}
+          <div className="mt-6 border-t border-[#262a34] pt-5 text-center text-xs text-[#cbc3d7]/70">
+            {isSignUp ? (
+              <span>
+                Already have an account?{' '}
+                <button
+                  type="button"
+                  onClick={() => setIsSignUp(false)}
+                  className="font-semibold text-[#d0bcff] hover:underline"
+                >
+                  Log In
+                </button>
+              </span>
+            ) : (
+              <span>
+                Don&apos;t have an account?{' '}
+                <button
+                  type="button"
+                  onClick={() => setIsSignUp(true)}
+                  className="font-semibold text-[#d0bcff] hover:underline"
+                >
+                  Sign Up
+                </button>
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -128,11 +158,13 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center bg-slate-950">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-700 border-t-indigo-500" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-[#0f131c]">
+          <Loader2 className="h-8 w-8 animate-spin text-[#d0bcff]" />
+        </div>
+      }
+    >
       <LoginForm />
     </Suspense>
   )

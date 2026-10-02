@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { createClient } from '@/app/utils/supabase/server'
-import { Layers, Play, Clock, BookmarkCheck } from 'lucide-react'
+import { Play, Clock, BookmarkCheck, ArrowRight, Sparkles, Folder } from 'lucide-react'
 
 export default async function Home() {
   const supabase = await createClient()
@@ -9,50 +10,84 @@ export default async function Home() {
   if (user) redirect('/dashboard')
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-950 text-white p-6">
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-indigo-600/20 blur-3xl" />
-        <div className="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-violet-600/20 blur-3xl" />
+    <div className="flex min-h-screen flex-col items-center justify-center bg-[#0f131c] text-[#dfe2ef] p-6 relative overflow-hidden selection:bg-[#a078ff] selection:text-[#340080]">
+      {/* Stitch Ambient Glows */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
+        <div className="absolute -top-40 -left-40 h-[600px] w-[600px] rounded-full bg-[#a078ff]/15 blur-[160px]" />
+        <div className="absolute -bottom-40 -right-40 h-[600px] w-[600px] rounded-full bg-[#00a6e0]/12 blur-[160px]" />
       </div>
 
-      <div className="relative max-w-2xl text-center">
+      <div className="relative z-10 max-w-3xl text-center flex flex-col items-center">
+        {/* Brand Icon */}
         <div className="mb-6 flex justify-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 shadow-2xl shadow-indigo-500/30">
-            <Layers className="h-8 w-8 text-white" />
+          <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-[#1c1f29] border border-[#31353f] shadow-2xl shadow-[#a078ff]/20">
+            <Image src="/logo.svg" alt="YT Summaries Logo" width={40} height={40} priority />
           </div>
         </div>
 
-        <h1 className="mb-4 text-5xl font-bold tracking-tight">
-          <span className="bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">VideoMark</span>
+        {/* Hero Tagline */}
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1c1f29] border border-[#262a34] text-[#d0bcff] text-xs font-mono mb-4">
+          <Sparkles className="h-3.5 w-3.5 text-[#45dfa4]" />
+          <span>Intelligent YouTube Study Organizer</span>
+        </div>
+
+        <h1 className="mb-4 text-4xl sm:text-6xl font-bold tracking-tight text-white leading-tight">
+          Master any video with{' '}
+          <span className="bg-gradient-to-r from-[#d0bcff] via-[#a078ff] to-[#7bd0ff] bg-clip-text text-transparent">
+            instant timestamps &amp; notes
+          </span>
         </h1>
-        <p className="mb-8 text-lg text-slate-400">
-          Save any video. Capture notes at exact timestamps. Never lose an important moment again.
+        <p className="mb-10 text-sm sm:text-lg text-[#cbc3d7]/80 max-w-xl">
+          Queue YouTube tutorials and lectures. Capture one-click timestamp bookmarks, organize collections into study folders, and generate rich markdown notes.
         </p>
 
-        <div className="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-3 text-left">
+        {/* Features Row */}
+        <div className="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-3 text-left w-full">
           {[
-            { icon: Play, title: 'Any Video', desc: 'YouTube, Vimeo, or direct MP4 links' },
-            { icon: Clock, title: 'Timestamped Notes', desc: 'Capture the exact moment with one click' },
-            { icon: BookmarkCheck, title: 'Jump & Review', desc: 'Click any note to seek directly there' },
-          ].map(({ icon: Icon, title, desc }) => (
-            <div key={title} className="rounded-2xl border border-slate-800/60 bg-slate-900/60 p-4">
-              <Icon className="mb-2 h-5 w-5 text-indigo-400" />
+            {
+              icon: Play,
+              color: 'text-[#ffb4ab]',
+              title: 'YouTube & Video Stream',
+              desc: 'Direct auto-sync with video chapters and high-res thumbnails',
+            },
+            {
+              icon: Clock,
+              color: 'text-[#d0bcff]',
+              title: 'Timestamp Bookmarks',
+              desc: 'Save exact seconds and jump back immediately with interactive chips',
+            },
+            {
+              icon: Folder,
+              color: 'text-[#45dfa4]',
+              title: 'Curated Collections',
+              desc: 'Categorize study libraries with drag-and-drop folder sorting',
+            },
+          ].map(({ icon: Icon, color, title, desc }) => (
+            <div
+              key={title}
+              className="rounded-2xl border border-[#262a34] bg-[#181b25]/80 p-5 shadow-sm backdrop-blur transition hover:border-[#a078ff]/40"
+            >
+              <div className="w-9 h-9 rounded-xl bg-[#1c1f29] border border-[#262a34] flex items-center justify-center mb-3">
+                <Icon className={`h-4.5 w-4.5 ${color}`} />
+              </div>
               <p className="text-sm font-semibold text-white">{title}</p>
-              <p className="mt-0.5 text-xs text-slate-400">{desc}</p>
+              <p className="mt-1 text-xs text-[#cbc3d7]/70 leading-relaxed">{desc}</p>
             </div>
           ))}
         </div>
 
+        {/* CTA Buttons */}
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           <Link
             href="/login"
-            className="rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/25 transition hover:from-indigo-500 hover:to-violet-500"
+            className="h-12 px-7 rounded-full bg-[#a078ff] hover:bg-[#d0bcff] text-[#340080] font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#a078ff]/25 active:scale-95 transition"
           >
-            Get Started Free
+            <span>Get Started Free</span>
+            <ArrowRight className="h-4 w-4" />
           </Link>
           <Link
             href="/login"
-            className="rounded-xl border border-slate-700 bg-slate-800/60 px-6 py-3 text-sm font-medium text-slate-300 transition hover:border-slate-600 hover:text-white"
+            className="h-12 px-7 rounded-full border border-[#262a34] bg-[#1c1f29] hover:bg-[#262a34] text-xs sm:text-sm font-semibold text-[#dfe2ef] transition active:scale-95 flex items-center justify-center"
           >
             Log In
           </Link>

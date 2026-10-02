@@ -12,12 +12,18 @@ export async function addVideo(formData: FormData) {
   const title = (formData.get('title') as string)?.trim()
   const video_url = (formData.get('video_url') as string)?.trim()
   const summary = (formData.get('summary') as string)?.trim() || null
+  const folder_id = (formData.get('folder_id') as string)?.trim() || null
 
   if (!title || !video_url) redirect('/dashboard?error=Title and URL are required')
 
   const { data: video, error } = await supabase
     .from('videos')
-    .insert({ title, video_url, user_id: user.id })
+    .insert({
+      title,
+      video_url,
+      user_id: user.id,
+      ...(folder_id && folder_id !== 'unassigned' ? { folder_id } : {})
+    })
     .select('id')
     .single()
 

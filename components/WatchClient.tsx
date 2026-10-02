@@ -6,7 +6,7 @@ import AddTimestampForm from '@/components/AddTimestampForm'
 import TimestampList from '@/components/TimestampList'
 import SummaryList from '@/components/SummaryList'
 import type { TimestampNote, Summary } from '@/types'
-import { Clock, FileText } from 'lucide-react'
+import { Clock, FileText, Sparkles } from 'lucide-react'
 
 interface Props {
   videoUrl: string
@@ -20,54 +20,79 @@ export default function WatchClient({ videoUrl, videoId, timestamps, summaries }
   const [tab, setTab] = useState<'notes' | 'summaries'>('notes')
 
   return (
-    <div className="flex flex-col gap-5">
-      {/* Top row: player + capture sidebar (always visible) */}
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+    <div className="flex flex-col gap-6">
+      {/* Top row: Video Player + Capture sidebar */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Player Left Column */}
+        <div className="lg:col-span-8 rounded-2xl overflow-hidden bg-[#181b25] border border-[#262a34] shadow-xl">
           <VideoPlayer ref={playerRef} url={videoUrl} />
         </div>
-        {/* Capture timestamp panel — always on the right, regardless of tab */}
-        <div className="flex flex-col gap-3">
+
+        {/* Capture Panel Right Column */}
+        <div className="lg:col-span-4 flex flex-col gap-4">
           <AddTimestampForm videoId={videoId} playerRef={playerRef} />
         </div>
       </div>
 
-      {/* Bottom: tabs + content */}
-      <div className="flex flex-col gap-3">
-        {/* Tab switcher */}
-        <div className="flex rounded-xl bg-slate-800/60 border border-slate-700/40 p-1 gap-1 w-full max-w-xs">
-          <button
-            onClick={() => setTab('notes')}
-            className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-sm font-medium transition ${
-              tab === 'notes' ? 'bg-slate-700 text-white shadow' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <Clock className="h-3.5 w-3.5" />
-            Notes
-            <span className="ml-1 rounded-full bg-slate-600/60 px-1.5 py-0.5 text-xs leading-none">{timestamps.length}</span>
-          </button>
-          <button
-            onClick={() => setTab('summaries')}
-            className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-sm font-medium transition ${
-              tab === 'summaries' ? 'bg-slate-700 text-white shadow' : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <FileText className="h-3.5 w-3.5" />
-            Summaries
-            <span className="ml-1 rounded-full bg-slate-600/60 px-1.5 py-0.5 text-xs leading-none">{summaries.length}</span>
-          </button>
-        </div>
+      {/* Studio Tabs & Content Section */}
+      <div className="flex flex-col gap-4">
+        {/* Tab Switcher */}
+        <div className="flex items-center justify-between border-b border-[#262a34] pb-3">
+          <div className="flex rounded-full bg-[#1c1f29] border border-[#262a34] p-1 gap-1 w-full max-w-xs shadow-inner">
+            <button
+              onClick={() => setTab('notes')}
+              className={`flex flex-1 items-center justify-center gap-1.5 rounded-full py-1.5 text-xs font-semibold transition active:scale-95 ${
+                tab === 'notes'
+                  ? 'bg-[#d0bcff] text-[#3c0091] shadow-sm'
+                  : 'text-[#cbc3d7] hover:text-white'
+              }`}
+            >
+              <Clock className="h-3.5 w-3.5" />
+              <span>Timestamp Notes</span>
+              <span
+                className={`ml-1 rounded-full px-1.5 py-0.2 font-mono text-[10px] ${
+                  tab === 'notes' ? 'bg-[#3c0091]/20 text-[#3c0091]' : 'bg-[#262a34] text-[#958ea0]'
+                }`}
+              >
+                {timestamps.length}
+              </span>
+            </button>
 
-        {/* Tab content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          <div className="lg:col-span-2">
-            {tab === 'notes' ? (
-              <TimestampList timestamps={timestamps} videoId={videoId} playerRef={playerRef} />
-            ) : (
-              <SummaryList summaries={summaries} videoId={videoId} playerRef={playerRef} />
-            )}
+            <button
+              onClick={() => setTab('summaries')}
+              className={`flex flex-1 items-center justify-center gap-1.5 rounded-full py-1.5 text-xs font-semibold transition active:scale-95 ${
+                tab === 'summaries'
+                  ? 'bg-[#d0bcff] text-[#3c0091] shadow-sm'
+                  : 'text-[#cbc3d7] hover:text-white'
+              }`}
+            >
+              <FileText className="h-3.5 w-3.5" />
+              <span>AI Summaries</span>
+              <span
+                className={`ml-1 rounded-full px-1.5 py-0.2 font-mono text-[10px] ${
+                  tab === 'summaries' ? 'bg-[#3c0091]/20 text-[#3c0091]' : 'bg-[#262a34] text-[#958ea0]'
+                }`}
+              >
+                {summaries.length}
+              </span>
+            </button>
           </div>
         </div>
+
+        {/* Tab panels */}
+        {tab === 'notes' ? (
+          <div className="rounded-2xl bg-[#181b25] border border-[#262a34] p-4 sm:p-6 shadow-sm">
+            <TimestampList timestamps={timestamps} videoId={videoId} playerRef={playerRef} />
+          </div>
+        ) : (
+          <div className="rounded-2xl bg-[#181b25] border border-[#262a34] p-4 sm:p-6 shadow-sm">
+            <SummaryList
+              summaries={summaries}
+              videoId={videoId}
+              onSeek={(seconds) => playerRef.current?.seekTo(seconds)}
+            />
+          </div>
+        )}
       </div>
     </div>
   )
