@@ -148,7 +148,7 @@ export default function DashboardShell({ videos, folders, fetchError, userEmail 
           className="h-11 px-5 rounded-full bg-[#a078ff] hover:bg-[#d0bcff] text-[#340080] font-semibold text-sm flex items-center justify-center gap-2 shadow-md shadow-[#a078ff]/20 active:scale-95 transition"
         >
           <Plus className="h-4 w-4 stroke-[2.5]" />
-          <span>+ Add Video</span>
+          <span>Add Video</span>
         </button>
       </section>
 
@@ -161,19 +161,17 @@ export default function DashboardShell({ videos, folders, fetchError, userEmail 
           onDragOver={e => onDragOver(e, null)}
           onDrop={() => handleDrop(null)}
           onDragLeave={() => setDragOverFolder('_none')}
-          className={`shrink-0 h-10 px-4 rounded-full font-medium text-xs sm:text-sm flex items-center gap-2 shadow-sm transition-all active:scale-95 ${
-            selectedFolder === null
+          className={`shrink-0 h-10 px-4 rounded-full font-medium text-xs sm:text-sm flex items-center gap-2 shadow-sm transition-all active:scale-95 ${selectedFolder === null
               ? 'bg-[#d0bcff] text-[#3c0091] font-semibold'
               : dragOverFolder === null
                 ? 'bg-[#a078ff]/30 border border-[#d0bcff] text-[#d0bcff]'
                 : 'bg-[#1c1f29] border border-[#262a34] text-[#cbc3d7] hover:bg-[#262a34]'
-          }`}
+            }`}
         >
           <span>All</span>
           <span
-            className={`px-1.5 py-0.5 rounded-full font-mono text-[11px] ${
-              selectedFolder === null ? 'bg-[#3c0091]/20 text-[#3c0091]' : 'bg-[#262a34] text-[#958ea0]'
-            }`}
+            className={`px-1.5 py-0.5 rounded-full font-mono text-[11px] ${selectedFolder === null ? 'bg-[#3c0091]/20 text-[#3c0091]' : 'bg-[#262a34] text-[#958ea0]'
+              }`}
           >
             {videos.length}
           </span>
@@ -192,20 +190,18 @@ export default function DashboardShell({ videos, folders, fetchError, userEmail 
               onDragOver={e => onDragOver(e, f.id)}
               onDrop={() => handleDrop(f.id)}
               onDragLeave={() => setDragOverFolder('_none')}
-              className={`group shrink-0 h-10 pl-3.5 pr-2 rounded-full font-medium text-xs sm:text-sm flex items-center gap-2 cursor-pointer shadow-sm transition-all active:scale-95 ${
-                isSelected
+              className={`group shrink-0 h-10 pl-3.5 pr-2 rounded-full font-medium text-xs sm:text-sm flex items-center gap-2 cursor-pointer shadow-sm transition-all active:scale-95 ${isSelected
                   ? 'bg-[#d0bcff] text-[#3c0091] font-semibold'
                   : isDragTarget
                     ? 'bg-[#a078ff]/30 border border-[#d0bcff] text-[#d0bcff]'
                     : 'bg-[#1c1f29] border border-[#262a34] text-[#cbc3d7] hover:bg-[#262a34]'
-              }`}
+                }`}
             >
               <FolderIcon className={`h-4 w-4 ${isSelected ? 'text-[#3c0091]' : 'text-[#d0bcff]'}`} />
               <span>{f.name}</span>
               <span
-                className={`px-1.5 py-0.5 rounded-full font-mono text-[11px] ${
-                  isSelected ? 'bg-[#3c0091]/20 text-[#3c0091]' : 'bg-[#262a34] text-[#958ea0]'
-                }`}
+                className={`px-1.5 py-0.5 rounded-full font-mono text-[11px] ${isSelected ? 'bg-[#3c0091]/20 text-[#3c0091]' : 'bg-[#262a34] text-[#958ea0]'
+                  }`}
               >
                 {count}
               </span>
@@ -214,11 +210,10 @@ export default function DashboardShell({ videos, folders, fetchError, userEmail 
                 onClick={e => handleDeleteFolder(f.id, e)}
                 disabled={deletingFolder === f.id}
                 aria-label={`Delete ${f.name} folder`}
-                className={`ml-0.5 p-1 rounded-full transition ${
-                  isSelected
+                className={`ml-0.5 p-1 rounded-full transition ${isSelected
                     ? 'text-[#3c0091]/60 hover:text-[#690005] hover:bg-[#ffdad6]'
                     : 'text-[#958ea0] hover:text-[#ffb4ab] hover:bg-[#262a34]'
-                }`}
+                  }`}
               >
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -233,19 +228,17 @@ export default function DashboardShell({ videos, folders, fetchError, userEmail 
           onDragOver={e => onDragOver(e, 'unassigned')}
           onDrop={() => handleDrop(null)}
           onDragLeave={() => setDragOverFolder('_none')}
-          className={`shrink-0 h-10 px-4 rounded-full font-medium text-xs sm:text-sm flex items-center gap-2 shadow-sm transition-all active:scale-95 ${
-            selectedFolder === 'unassigned'
+          className={`shrink-0 h-10 px-4 rounded-full font-medium text-xs sm:text-sm flex items-center gap-2 shadow-sm transition-all active:scale-95 ${selectedFolder === 'unassigned'
               ? 'bg-[#d0bcff] text-[#3c0091] font-semibold'
               : dragOverFolder === 'unassigned'
                 ? 'bg-[#a078ff]/30 border border-[#d0bcff] text-[#d0bcff]'
                 : 'bg-[#1c1f29] border border-[#262a34] text-[#cbc3d7] hover:bg-[#262a34]'
-          }`}
+            }`}
         >
           <span>Unassigned</span>
           <span
-            className={`px-1.5 py-0.5 rounded-full font-mono text-[11px] ${
-              selectedFolder === 'unassigned' ? 'bg-[#3c0091]/20 text-[#3c0091]' : 'bg-[#262a34] text-[#958ea0]'
-            }`}
+            className={`px-1.5 py-0.5 rounded-full font-mono text-[11px] ${selectedFolder === 'unassigned' ? 'bg-[#3c0091]/20 text-[#3c0091]' : 'bg-[#262a34] text-[#958ea0]'
+              }`}
           >
             {videos.filter(v => !v.folder_id).length}
           </span>
